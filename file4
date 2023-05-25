@@ -1,1 +1,74 @@
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
+from fuzzywuzzy import fuzz
+
+# Load your transaction and invoice data into pandas DataFrames
+transaction_data = pd.read_csv('transaction_data.csv')
+invoice_data = pd.read_csv('invoice_data.csv')
+
+# Select relevant columns for matching
+transaction_columns = ['supplier_name', 'source_amount', 'other_column']
+transaction_features = transaction_data[transaction_columns].astype(str)
+invoice_features = invoice_data[['inv_source_amt', 'inv_ticket_number']].astype(str)
+
+# Create a set to store matched invoice indices
+matched_indices = set()
+
+# Create CountVectorizer to convert text data to vectors
+vectorizer = CountVectorizer()
+
+# Fit and transform the transaction names
+transaction_vectors = vectorizer.fit_transform(transaction_features['supplier_name'])
+
+# Transform the invoice names
+invoice_vectors = vectorizer.transform(invoice_features['inv_source_amt'])
+
+# Calculate the cosine similarity matrix for supplier_name and inv_source_amt
+similarity_matrix_supplier = cosine_similarity(transaction_vectors, invoice_vectors)
+
+# Find the best matches for supplier_name and inv_source_amt
+supplier_threshold = 0.8
+source_amt_threshold = 0.9
+matches_supplier = []
+matches_source_amt = []
+
+for transaction_idx, transaction_name in enumerate(transaction_features['supplier_name']):
+    best_match_score_supplier = -1
+    best_match_idx_supplier = -1
+    best_match_score_source_amt = -1
+    best_match_idx_source_amt = -1
+
+    for invoice_idx, invoice_name in enumerate(invoice_features['inv_source_amt']):
+        if invoice_idx not in matched_indices:  # Check if the invoice has already been matched
+            similarity_score_supplier = fuzz.ratio(transaction_name, invoice_name)
+            if similarity_score_supplier > best_match_score_supplier:
+                best_match_score_supplier = similarity_score_supplier
+                best_match_idx_supplier = invoice_idx
+
+    for invoice_idx, invoice_name in enumerate(invoice_features['inv_ticket_number']):
+        if invoice_idx not in matched_indices:  # Check if the invoice has already been matched
+            similarity_score_source_amt = fuzz.ratio(transaction_features['source_amount'][transaction_idx][:5], invoice_name)
+            if similarity_score_source_amt > best_match_score_source_amt:
+                best_match_score_source_amt = similarity_score_source_amt
+                best_match_idx_source_amt = invoice_idx
+
+    if (
+        best_match_score_supplier >= supplier_threshold and
+        best_match_score_source_amt >= source_amt_threshold
+    ):
+        transaction_id = transaction_data.iloc[transaction_idx]['fin_record_key']
+        invoice_id_supplier = invoice_data.iloc[best_match_idx_supplier]['inv_unmatch_inv_id']
+        invoice_id_source_amt = invoice_data.iloc[best_match_idx_source_amt]['inv_unmatch_inv_id']
+        final_score = (best_match_score_supplier + best_match_score_source_amt) / 2
+
+        matches_supplier.append((transaction_id, invoice_id_supplier, best_match_idx_supplier, best_match_score_supplier))
+        matches_source_amt.append((transaction_id, invoice_id_source_amt, best_match_idx_source_amt, best_match_score_source_amt))
+        matched_indices.add(best_match_idx_supplier)
+        matched_indices.add(best_match_idx_source_amt)
+
+# Display and save the matches
+output_file = 'matches.csv'
+with open(output_file, 'w') as file:
+    file.write
 
