@@ -1,0 +1,57 @@
+import pandas as pd
+from fuzzywuzzy import fuzz
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load the Transactions dataframe
+df_transactions = pd.read_csv('transactions.csv')
+
+# Load the Invoice dataframe
+df_invoice = pd.read_csv('invoice.csv')
+
+# Define the columns to consider for matching
+matching_columns_transactions = ['Source_Amount', 'transaction_type_cd', 'account_no', 'Supplier_name', 'trans_ticket_no', 'trans_auth_no', 'trans_pnr_no']
+matching_columns_invoice = ['inv_transaction_amount', 'inv_debit_credit_cd', 'invoice_unmatch_inv_id', 'inv_account_no', 'inv_ticket_no', 'inv_authn_no']
+
+# Function to calculate fuzzy matching score
+def calculate_matching_score(row1, row2):
+    return fuzz.token_set_ratio(row1, row2)
+
+# Function to find the best matching row in the Invoice dataframe for a given Transaction row
+def find_best_match(transaction_row, threshold):
+    best_match = None
+    best_similarity = -1
+    
+    for inv_index, invoice_row in df_invoice.iterrows():
+        match_score = calculate_matching_score(
+            ' '.join(str(invoice_row[col]) for col in matching_columns_invoice),
+            ' '.join(str(transaction_row[col]) for col in matching_columns_transactions)
+        )
+        
+        if match_score > best_similarity:
+            best_similarity = match_score
+            best_match = invoice_row
+    
+    if best_similarity >= threshold:
+        return best_match, inv_index, best_similarity
+    else:
+        return None, None, None
+
+# Define the threshold for matching score
+threshold = 70
+
+# Iterate over each row in the Transactions dataframe
+for trans_index, transaction_row in df_transactions.iterrows():
+    best_match, inv_index, match_score = find_best_match(transaction_row, threshold)
+    
+    if best_match is not None:
+        print(f"Transaction Index: {trans_index}")
+        print(f"Best Invoice Index: {inv_index}")
+        print(f"Overall Matching Score: {match_score}")
+        
+        # Calculate matching score for each column
+        for col1, col2 in zip(matching_columns_transactions, matching_columns_invoice):
+            score = calculate_matching_score(str(best_match[col2]), str(transaction_row[col1]))
+            print(f"{col1} Matching Score: {score}")
+        
+        print("------------------------")
