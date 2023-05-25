@@ -141,3 +141,23 @@ results = find_best_match(transactions, invoices, similarity_matrix)
 
 # Print the results
 print(results)
+
+
+
+
+
+
+
+
+
+def find_best_match(transactions, invoices, similarity_matrix):
+    results = [(i,
+                next((j for j, score in enumerate(similarity_matrix[i])
+                      if score >= 1 and score >= 0.5), 'null'),
+                max(score for score in similarity_matrix[i]
+                    if score >= 1 and score >= 0.5),
+               )
+               for i, _ in transactions.iterrows()]
+    
+    results_df = pd.DataFrame(results, columns=['transaction_index', 'invoice_index', 'matching_score'])
+    return results_df
