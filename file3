@@ -55,3 +55,42 @@ for trans_index, transaction_row in df_transactions.iterrows():
             print(f"{col1} Matching Score: {score}")
         
         print("------------------------")
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        matched_rows = []
+for i in range(cosine_sim.shape[0]):
+    transaction_scores = list(cosine_sim[i])
+    best_match_index = -1
+    max_score = -1
+    for j, column in enumerate(column_sequence):
+        if transaction_scores[j] > thresholds[column] and transaction_scores[j] > max_score:
+            max_score = transaction_scores[j]
+            best_match_index = transaction_scores.index(max_score)
+    if best_match_index != -1:
+        pattern = f"Transaction: {transactions_df.iloc[i]}\nInvoice: {invoice_df.iloc[best_match_index]}"
+        matched_rows.append((i, best_match_index, pattern))
+
+# Display the matched rows
+for transaction_index, invoice_index, pattern in matched_rows:
+    print(f"Transaction Index: {transaction_index}")
+    print(f"Invoice Index: {invoice_index}")
+    print(f"Pattern:\n{pattern}")
+    print("--------")
