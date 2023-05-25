@@ -1,0 +1,143 @@
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+# Calculate cosine similarity between transaction and invoice data
+def calculate_cosine_similarity(transactions, invoices):
+    # Create a TfidfVectorizer
+    vectorizer = TfidfVectorizer()
+
+    # Convert source_amount and supplier_name columns to strings in transactions DataFrame
+    transactions['source_amount'] = transactions['source_amount'].astype(str)
+    transactions['supplier_name'] = transactions['supplier_name'].astype(str)
+
+    # Convert source_amount and ticket_number columns to strings in invoices DataFrame
+    invoices['source_amount'] = invoices['source_amount'].astype(str)
+    invoices['ticket_number'] = invoices['ticket_number'].astype(str)
+
+    # Create tf-idf matrices for transaction and invoice data
+    tfidf_transactions = vectorizer.fit_transform(transactions['source_amount'] + ' ' + transactions['supplier_name'])
+    tfidf_invoices = vectorizer.transform(invoices['source_amount'] + ' ' + invoices['ticket_number'])
+
+    # Calculate cosine similarity between tf-idf matrices
+    similarity_matrix = cosine_similarity(tfidf_transactions, tfidf_invoices)
+
+    return similarity_matrix
+
+
+# Find the best matching row in invoices for each transaction
+def find_best_match(transactions, invoices, similarity_matrix):
+    # Create a new DataFrame to store the results
+    results = pd.DataFrame(columns=['transaction_index', 'invoice_index', 'matching_score'])
+
+    for i, row in transactions.iterrows():
+        transaction_index = i
+        best_match_index = None
+        best_match_score = 0
+
+        for j, score in enumerate(similarity_matrix[i]):
+            # Check if the first column (source_amount) matches 100% and the second column (supplier_name and ticket_number) matches more than 50%
+            if score >= 1 and score >= 0.5 and score > best_match_score:
+                best_match_index = j
+                best_match_score = score
+
+        if best_match_index is not None:
+            results = results.append({'transaction_index': transaction_index,
+                                      'invoice_index': best_match_index,
+                                      'matching_score': best_match_score}, ignore_index=True)
+        else:
+            results = results.append({'transaction_index': transaction_index,
+                                      'invoice_index': 'null',
+                                      'matching_score': best_match_score}, ignore_index=True)
+
+    return results
+
+
+
+
+# Assuming you have two DataFrames: transactions and invoices
+
+# Calculate cosine similarity
+similarity_matrix = calculate_cosine_similarity(transactions, invoices)
+
+# Find the best matching rows
+results = find_best_match(transactions, invoices, similarity_matrix)
+
+# Print the results
+print(results)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Calculate cosine similarity between transaction and invoice data
+def calculate_cosine_similarity(transactions, invoices):
+    vectorizer = TfidfVectorizer()
+    transactions['source_amount'] = transactions['source_amount'].astype(str)
+    transactions['supplier_name'] = transactions['supplier_name'].astype(str)
+    invoices['source_amount'] = invoices['source_amount'].astype(str)
+    invoices['ticket_number'] = invoices['ticket_number'].astype(str)
+    tfidf_transactions = vectorizer.fit_transform(transactions['source_amount'] + ' ' + transactions['supplier_name'])
+    tfidf_invoices = vectorizer.transform(invoices['source_amount'] + ' ' + invoices['ticket_number'])
+    similarity_matrix = cosine_similarity(tfidf_transactions, tfidf_invoices)
+    return similarity_matrix
+
+def find_best_match(transactions, invoices, similarity_matrix):
+    results = pd.DataFrame(columns=['transaction_index', 'invoice_index', 'matching_score'])
+
+    for i, row in transactions.iterrows():
+        transaction_index = i
+        best_match_index = None
+        best_match_score = 0
+
+        for j, score in enumerate(similarity_matrix[i]):
+            if score >= 1 and score >= 0.5 and score > best_match_score:
+                best_match_index = j
+                best_match_score = score
+
+        if best_match_index is not None:
+            results = results.append({'transaction_index': transaction_index,
+                                      'invoice_index': best_match_index,
+                                      'matching_score': best_match_score}, ignore_index=True)
+        else:
+            results = results.append({'transaction_index': transaction_index,
+                                      'invoice_index': 'null',
+                                      'matching_score': best_match_score}, ignore_index=True)
+
+    return results
+
+# Read the transactions and invoices files
+transactions = pd.read_csv('transactions.csv')
+invoices = pd.read_csv('invoices.csv')
+
+# Calculate cosine similarity
+similarity_matrix = calculate_cosine_similarity(transactions, invoices)
+
+# Find the best matching rows
+results = find_best_match(transactions, invoices, similarity_matrix)
+
+# Print the results
+print(results)
