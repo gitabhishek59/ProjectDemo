@@ -161,3 +161,44 @@ def find_best_match(transactions, invoices, similarity_matrix):
     
     results_df = pd.DataFrame(results, columns=['transaction_index', 'invoice_index', 'matching_score'])
     return results_df
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    def find_best_match(transactions, invoices, similarity_matrix):
+    for i, row in transactions.iterrows():
+        transaction_index = i
+        best_match_index = None
+        best_match_score = 0
+
+        for j, score in enumerate(similarity_matrix[i]):
+            if score >= 1 and score >= 0.5 and score > best_match_score:
+                best_match_index = j
+                best_match_score = score
+
+        if best_match_index is not None:
+            print(f"Transaction Index: {transaction_index}, Invoice Index: {best_match_index}, Matching Score: {best_match_score}")
+        else:
+            print(f"Transaction Index: {transaction_index}, Invoice Index: null, Matching Score: {best_match_score}")
+
