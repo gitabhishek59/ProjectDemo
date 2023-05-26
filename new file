@@ -1,0 +1,49 @@
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Calculate cosine similarity between transaction and invoice data
+def calculate_cosine_similarity(transactions, invoices, threshold_values):
+    vectorizer = TfidfVectorizer()
+    transactions['source_amount'] = transactions['source_amount'].astype(str)
+    transactions['supplier_name'] = transactions['supplier_name'].astype(str)
+    invoices['source_amount'] = invoices['source_amount'].astype(str)
+    invoices['ticket_number'] = invoices['ticket_number'].astype(str)
+    tfidf_transactions = vectorizer.fit_transform(transactions['source_amount'] + ' ' + transactions['supplier_name'])
+    tfidf_invoices = vectorizer.transform(invoices['source_amount'] + ' ' + invoices['ticket_number'])
+    
+    # Apply threshold values to similarity matrix
+    similarity_matrix = cosine_similarity(tfidf_transactions, tfidf_invoices)
+    similarity_matrix[:, 0] *= (similarity_matrix[:, 0] >= threshold_values[0])  # Apply threshold 1 for source_amount column
+    similarity_matrix[:, 1:] *= (similarity_matrix[:, 1:] >= threshold_values[1])  # Apply threshold 0.5 for other columns
+    
+    return similarity_matrix
+
+def find_best_match(transactions, invoices, similarity_matrix):
+    for i, row in transactions.iterrows():
+        transaction_index = i
+        best_match_index = None
+        best_match_score = 0
+
+        for j, score in enumerate(similarity_matrix[i]):
+            if score >= 1 and score > best_match_score:
+                best_match_index = j
+                best_match_score = score
+
+        if best_match_index is not None:
+            print(f"Transaction Index: {transaction_index}, Invoice Index: {best_match_index}, Matching Score: {best_match_score}")
+        else:
+            print(f"Transaction Index: {transaction_index}, Invoice Index: null, Matching Score: {best_match_score}")
+
+# Read the transactions and invoices files
+transactions = pd.read_csv('transactions.csv')
+invoices = pd.read_csv('invoices.csv')
+
+# Set the threshold values for each column
+threshold_values = [1.0, 0.5]  # First column (source_amount): threshold = 1.0, Other columns: threshold = 0.5
+
+# Calculate cosine similarity with threshold values
+similarity_matrix = calculate_cosine_similarity(transactions, invoices, threshold_values)
+
+# Find the best matching rows and print the results
+find_best_match(transactions, invoices, similarity_matrix)
