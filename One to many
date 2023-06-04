@@ -1,0 +1,73 @@
+import pandas as pd
+from difflib import SequenceMatcher
+
+# Create transaction_df (Transaction DataFrame) with manually assigned values
+transaction_data = {
+    'Source_Amount': ['1000', '2000', '1500', '3000', '1800'],
+    'transaction_type_cd': ['A', 'B', 'A', 'C', 'B'],
+    'Supplier_name': ['Supplier1', 'Supplier2', 'Supplier3', 'Supplier4', 'Supplier5'],
+    'purchase_Identification': ['Purchase1', 'Purchase2', 'Purchase3', 'Purchase4', 'Purchase5']
+}
+transaction_df = pd.DataFrame(transaction_data)
+
+# Create invoice_df (Invoice DataFrame) with manually assigned values
+invoice_data = {
+    'inv_debit_credit_cd': ['D', 'B', 'D', 'C', 'D'],
+    'invoice_unmatch_inv_id': ['1000', 'Supplier2', 'Invoice3', 'Invoice4', 'Invoice5'],
+    'inv_ticket_no': ['A', 'Purchase2', 'Ticket3', 'Ticket4', 'Ticket5'],
+    'inv_transaction_amount': [1050, 2000, 1550, 3000, 1700]
+}
+invoice_df = pd.DataFrame(invoice_data)
+
+# Threshold dictionary for column-wise matching
+thresholds = {
+    'Source_Amount': 1.0,
+    'transaction_type_cd': 1.0,
+    'Supplier_name': 0.6,
+    'purchase_Identification': 0.5
+}
+
+# List to store matching details
+matches = []
+
+# Iterate through each row in transaction_df
+for index, transaction_row in transaction_df.iterrows():
+    best_match_score = 0
+    best_match_index = -1
+    best_match_columns = {}
+    
+    # Iterate through each row in invoice_df
+    for inv_index, invoice_row in invoice_df.iterrows():
+        matching_score = 0
+        matching_columns = {}
+        
+        # Calculate the similarity score for each column and apply the threshold
+        for col1 in transaction_df.columns:
+            for col2 in invoice_df.columns:
+                similarity_ratio = SequenceMatcher(None, str(transaction_row[col1]), str(invoice_row[col2])).ratio()
+                
+                # Apply the threshold for specific columns in df1
+                if col1 in thresholds and similarity_ratio >= thresholds[col1]:
+                    matching_score += similarity_ratio
+                    matching_columns[col1] = (col2, similarity_ratio)
+        
+        # Update the best match if a higher score is found
+        if matching_score > best_match_score:
+            best_match_score = matching_score
+            best_match_index = inv_index
+            best_match_columns = matching_columns
+    
+    # Append the matching details to the list
+    match = {
+        'df1_index': index,
+        'df2_index': best_match_index,
+        'matching_score': best_match_score,
+        'matching_columns': best_match_columns
+    }
+    matches.append(match)
+
+# Create a DataFrame from the matches list
+result_df = pd.DataFrame(matches)
+
+# Save the result DataFrame to a CSV file
+result_df.to_csv('matching_details.csv', index=False)
