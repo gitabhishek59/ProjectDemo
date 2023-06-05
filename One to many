@@ -71,3 +71,77 @@ result_df = pd.DataFrame(matches)
 
 # Save the result DataFrame to a CSV file
 result_df.to_csv('matching_details.csv', index=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+thresholds = {
+    'Source_Amount': 1.0,
+    'transaction_type_cd': 0.8,
+    'Supplier_name': 0.7,
+    'purchase_Identification': 0.9
+}
+
+# List to store matching details
+matches = []
+
+# Iterate through each row in transaction_df
+for index, transaction_row in transaction_df.iterrows():
+    best_match_score = 0
+    best_match_index = None
+    best_match_columns = {}
+    
+    # Iterate through each row in invoice_df
+    for inv_index, invoice_row in invoice_df.iterrows():
+        matching_score = 0
+        matching_columns = {}
+        
+        # Calculate the similarity score for each column and apply the threshold
+        for col1 in transaction_df.columns:
+            for col2 in invoice_df.columns:
+                similarity_ratio = SequenceMatcher(None, str(transaction_row[col1]), str(invoice_row[col2])).ratio()
+                
+                # Apply the threshold for specific columns in df1
+                if col1 in thresholds and similarity_ratio >= thresholds[col1]:
+                    matching_score += similarity_ratio
+                    matching_columns[col1] = (col2, similarity_ratio)
+        
+        # Check if the matching invoice meets the conditions
+        if matching_score > best_match_score and matching_columns.get('Source_Amount') and matching_columns.get('transaction_type_cd') and (matching_columns.get('Supplier_name') or matching_columns.get('purchase_Identification')):
+            best_match_score = matching_score
+            best_match_index = inv_index
+            best_match_columns = matching_columns
+    
+    # Append the matching details to the list
+    match = {
+        'df1_index': index,
+        'df2_index': best_match_index if best_match_index is not None else 'No Index',
+        'matching_score': best_match_score,
+        'matching_columns': best_match_columns
+    }
+    matches.append(match)
+
+# Create a DataFrame from the matches list
+result_df = pd.DataFrame(matches)
+
+# Save the result DataFrame to a CSV file
+result_df.to_csv('matching_details.csv', index=False)
+
