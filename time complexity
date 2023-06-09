@@ -1,0 +1,78 @@
+import pandas as pd
+from difflib import SequenceMatcher
+
+# Create transaction_df (Transaction DataFrame) with manually assigned values
+transaction_data = {
+    'Source_Amount': [1000, 2000, 1500, 3000, 1800],
+    'transaction_type_cd': ['A', 'B', 'A', 'C', 'B'],
+    'Supplier_name': ['Supplier1', 'Supplier2', 'Supplier3', 'Supplier4', 'Supplier5'],
+    'purchase_Identification': ['Purchase1', 'Purchase2', 'Purchase3', 'Purchase4', 'Purchase5']
+}
+transaction_df = pd.DataFrame(transaction_data)
+
+# Create invoice_df (Invoice DataFrame) with manually assigned values
+invoice_data = {
+    'inv_transaction_amount': [1050, 2000, 1550, 3000, 1700],
+    'inv_debit_credit_cd': ['D', 'C', 'D', 'C', 'D'],
+    'invoice_unmatch_inv_id': ['Invoice1', 'Invoice2', 'Invoice3', 'Invoice4', 'Invoice5'],
+    'inv_ticket_no': ['Ticket1', 'Ticket2', 'Ticket3', 'Ticket4', 'Ticket5']
+}
+invoice_df = pd.DataFrame(invoice_data)
+
+# Threshold dictionary for column-wise matching
+thresholds = {
+    'Source_Amount': 1.0,
+    'transaction_type_cd': 0.8,
+    'Supplier_name': 0.7,
+    'purchase_Identification': 0.9
+}
+
+# Set indexes for transaction_df and invoice_df
+transaction_df.set_index(['Source_Amount', 'transaction_type_cd', 'Supplier_name', 'purchase_Identification'], inplace=True)
+invoice_df.set_index(['inv_transaction_amount', 'inv_debit_credit_cd', 'invoice_unmatch_inv_id', 'inv_ticket_no'], inplace=True)
+
+# List to store matching details
+matches = []
+
+# Iterate through each row in transaction_df
+for index, transaction_row in transaction_df.iterrows():
+    best_match_score = 0
+    best_match_index = None
+    best_match_columns = {}
+
+    # Check if the current row has been matched already
+    if index in matched_indices:
+        continue
+
+    # Iterate through each row in invoice_df
+    for inv_index, invoice_row in invoice_df.iterrows():
+
+        # Check if the current invoice row has been matched already
+        if inv_index in matched_indices:
+            continue
+
+        matching_score = 0
+        matching_columns = {}
+
+        # Calculate the similarity score for each column and apply the threshold
+        for col1 in transaction_df.columns:
+            for col2 in invoice_df.columns:
+                similarity_ratio = SequenceMatcher(None, str(transaction_row[col1]), str(invoice_row[col2])).ratio()
+
+                # Apply the threshold for specific columns in df1
+                if col1 in thresholds and similarity_ratio >= thresholds[col1]:
+                    matching_score += similarity_ratio
+                    matching_columns[col1] = (col2, similarity_ratio)
+
+                    # Check if a perfect match is found
+                    if similarity_ratio == 1.0:
+                        matching_score = 1.0
+                        matching_columns = {col1: (col2, 1.0)}
+                        break
+
+        # Check if the matching invoice meets the conditions
+        if matching_score > best_match_score and matching_columns.get('Source_Amount') and matching_columns.get(
+                'transaction_type_cd') and (
+                matching_columns.get('Supplier_name') or matching_columns.get('purchase_Identification')):
+            best_match_score = matching_score
+            best_match_index = inv_index
