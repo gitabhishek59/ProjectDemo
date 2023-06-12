@@ -83,3 +83,24 @@ result_df = pd.DataFrame(matches)
 
 # Save the result DataFrame to a CSV file
 result_df.to_csv('matching_details.csv', index=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ if best_match_score >= 1.0 and (best_match_columns.get('Supplier_name') or best_match_columns.get('purchase_Identification')) and max([score for _, score in best_match_columns.values()]) >= 0.9:
+        matched_unmatched = 1
+    else:
+        matched_unmatched = 0
+    
