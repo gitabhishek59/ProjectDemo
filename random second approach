@@ -1,0 +1,45 @@
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.multioutput import MultiOutputClassifier, MultiOutputRegressor
+
+# Separate the dependent and independent variables
+X = result_df.drop(['matched_unmatched', 'matching_columns', 'matching_score'], axis=1)
+y_matched_unmatched = result_df['matched_unmatched']
+y_matching_columns = result_df['matching_columns']
+y_matching_score = result_df['matching_score']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train_matched_unmatched, y_test_matched_unmatched, y_train_matching_columns, y_test_matching_columns, y_train_matching_score, y_test_matching_score = train_test_split(
+    X, y_matched_unmatched, y_matching_columns, y_matching_score, test_size=0.2, random_state=42
+)
+
+# Initialize the multi-output classifiers or regressors
+classifier_matched_unmatched = MultiOutputClassifier(RandomForestClassifier())
+classifier_matching_columns = MultiOutputClassifier(RandomForestClassifier())
+regressor_matching_score = MultiOutputRegressor(RandomForestRegressor())
+
+# Train the models
+classifier_matched_unmatched.fit(X_train, y_train_matched_unmatched)
+classifier_matching_columns.fit(X_train, y_train_matching_columns)
+regressor_matching_score.fit(X_train, y_train_matching_score)
+
+# Make predictions on the test set
+y_pred_matched_unmatched = classifier_matched_unmatched.predict(X_test)
+y_pred_matching_columns = classifier_matching_columns.predict(X_test)
+y_pred_matching_score = regressor_matching_score.predict(X_test)
+
+# Evaluate the models
+accuracy_matched_unmatched = accuracy_score(y_test_matched_unmatched, y_pred_matched_unmatched)
+accuracy_matching_columns = accuracy_score(y_test_matching_columns, y_pred_matching_columns)
+
+report_matched_unmatched = classification_report(y_test_matched_unmatched, y_pred_matched_unmatched)
+report_matching_columns = classification_report(y_test_matching_columns, y_pred_matching_columns)
+
+# Print the accuracy and classification reports
+print("Accuracy (matched_unmatched):", accuracy_matched_unmatched)
+print("Classification Report (matched_unmatched):\n", report_matched_unmatched)
+
+print("Accuracy (matching_columns):", accuracy_matching_columns)
+print("Classification Report (matching_columns):\n", report_matching_columns)
