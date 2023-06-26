@@ -22,3 +22,41 @@ string1 = "Hellogrrgt"
 string2 = "123"
 similarity = calculate_similarity_percentage(string1, string2)
 print(f"Similarity percentage: {similarity}%")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def calculate_similarity_percentage(str1, str2):
+    mapping = {c: i for i, c in enumerate(set(str1 + str2))}
+    vec1 = [mapping[c] for c in str1]
+    vec2 = [mapping[c] for c in str2]
+
+    max_len = max(len(vec1), len(vec2))
+    vec1 += [0] * (max_len - len(vec1))
+    vec2 += [0] * (max_len - len(vec2))
+
+    distance = sum(abs(a - b) for a, b in zip(vec1, vec2))
+
+    max_distance = max(abs(max(vec1) - min(vec1)), abs(max(vec2) - min(vec2))) * max_len
+    similarity_percentage = (1 - (distance / max_distance)) * 100
+
+    return similarity_percentage
+
+# Example usage
+string1 = "A3451"
+string2 = "345"
+similarity = calculate_similarity_percentage(string1, string2)
+print(f"Similarity percentage: {similarity}%")
