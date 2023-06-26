@@ -23,9 +23,9 @@ string2 = "123"
 similarity = calculate_similarity_percentage(string1, string2)
 print(f"Similarity percentage: {similarity}%")
 
-
-
-
+ if SequenceMatcher(None, transaction_row['Supplier_name'], invoice_row.values).ratio() >= thresholds['Supplier_name'] or \
+           SequenceMatcher(None, transaction_row['purchase_Identification'], invoice_row.values).ratio() >= thresholds['purchase_Identification']:
+            
 
 
 
