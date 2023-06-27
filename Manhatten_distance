@@ -60,3 +60,10 @@ string1 = "A3451"
 string2 = "345"
 similarity = calculate_similarity_percentage(string1, string2)
 print(f"Similarity percentage: {similarity}%")
+
+
+
+
+
+ 'df1_match_indices': SequenceMatcher(None, transaction_value, invoice_value).get_matching_blocks()[0][:2],
+                        'df2_match_indices': SequenceMatcher(None, transaction_value, invoice_value).get_matching_blocks()[0][2:]
