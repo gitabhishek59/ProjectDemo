@@ -1,0 +1,74 @@
+import pandas as pd
+from difflib import SequenceMatcher
+import numpy as np
+
+# Create transaction_df (Transaction DataFrame) with manually assigned values
+transaction_data = {
+    'Source_Amount': [1000, 2000, 1500, 3000, 1800],
+    'transaction_type_cd': ['A', 'B', 'A', 'C', 'B'],
+    'Supplier_name': ['Supplier1', 'Supplier2', 'Supplier3', 'Supplier4', 'Supplier5'],
+    'purchase_Identification': ['Purchase1', 'Purchase2', 'Purchase3', 'Purchase4', 'Purchase5']
+}
+transaction_df = pd.DataFrame(transaction_data)
+
+# Create invoice_df (Invoice DataFrame) with manually assigned values
+invoice_data = {
+    'inv_transaction_amount': [1050, 2000, 1550, 3000, 1700],
+    'inv_debit_credit_cd': ['D', 'C', 'D', 'C', 'D'],
+    'invoice_unmatch_inv_id': ['Invoice1', 'Invoice2', 'Invoice3', 'Invoice4', 'Invoice5'],
+    'inv_ticket_no': ['Ticket1', 'Ticket2', 'Ticket3', 'Ticket4', 'Ticket5']
+}
+invoice_df = pd.DataFrame(invoice_data)
+
+# Threshold dictionary for column-wise matching
+thresholds = {
+    'Source_Amount': 0.8,
+    'transaction_type_cd': 0.8,
+    'Supplier_name': 0.7,
+    'purchase_Identification': 0.9
+}
+
+# Convert dataframe values to string for comparison
+transaction_df = transaction_df.astype(str)
+invoice_df = invoice_df.astype(str)
+
+# Calculate matching scores and best match indices
+matching_scores = np.zeros(len(transaction_df))
+best_match_indices = np.zeros(len(transaction_df), dtype=int) - 1
+
+for i, row1 in transaction_df.iterrows():
+    for j, row2 in invoice_df.iterrows():
+        score = 0
+        for col1, val1 in row1.iteritems():
+            for col2, val2 in row2.iteritems():
+                if col1 in thresholds and col2 in thresholds:
+                    similarity_score = SequenceMatcher(None, val1, val2).ratio()
+                    if similarity_score >= thresholds[col1] and similarity_score > score:
+                        score = similarity_score
+                        best_match_indices[i] = j
+
+        matching_scores[i] = score
+
+# Extract matching columns and scores
+matching_columns = []
+for i, row1 in transaction_df.iterrows():
+    row2 = invoice_df.iloc[best_match_indices[i]]
+    cols = []
+    for col1, val1 in row1.iteritems():
+        for col2, val2 in row2.iteritems():
+            if col1 in thresholds and col2 in thresholds:
+                similarity_score = SequenceMatcher(None, val1, val2).ratio()
+                if similarity_score >= thresholds[col1]:
+                    cols.append((col1, col2, similarity_score))
+    matching_columns.append(cols)
+
+# Create a DataFrame with matching details
+result_df = pd.DataFrame({
+    'df1_index': range(len(transaction_df)),
+    'df2_index': best_match_indices,
+    'matching_score': matching_scores,
+    'matching_columns': matching_columns
+})
+
+# Save the result DataFrame to a CSV file
+result_df.to_csv('matching_details.csv', index=False)
