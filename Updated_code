@@ -1,0 +1,80 @@
+import pandas as pd
+from difflib import SequenceMatcher
+
+# Create transaction_df (Transaction DataFrame) with manually assigned values
+transaction_data = {
+    'Source_Amount': [1000, 2000, 1500, 3000, 1800],
+    'transaction_type_cd': ['A', 'B', 'A', 'C', 'B'],
+    'Supplier_name': ['Supplier1', 'Supplier2', 'Supplier3', 'Supplier4', 'Supplier5'],
+    'purchase_Identification': ['Purchase1', 'Purchase2', 'Purchase3', 'Purchase4', 'Purchase5']
+}
+transaction_df = pd.DataFrame(transaction_data)
+
+# Create invoice_df (Invoice DataFrame) with manually assigned values
+invoice_data = {
+    'inv_transaction_amount': [1050, 2000, 1550, 3000, 1700],
+    'inv_debit_credit_cd': ['D', 'C', 'D', 'C', 'D'],
+    'invoice_unmatch_inv_id': ['Invoice1', 'Invoice2', 'Invoice3', 'Invoice4', 'Invoice5'],
+    'inv_ticket_no': ['Ticket1', 'Ticket2', 'Ticket3', 'Ticket4', 'Ticket5']
+}
+invoice_df = pd.DataFrame(invoice_data)
+
+# Convert DataFrames to dictionaries
+transaction_dict = transaction_df.to_dict(orient='records')
+invoice_dict = invoice_df.to_dict(orient='records')
+
+# Threshold dictionary for column-wise matching
+thresholds = {
+    'Source_Amount': 1.0,
+    'transaction_type_cd': 0.8,
+    'Supplier_name': 0.7,
+    'purchase_Identification': 0.9
+}
+
+# List to store matching details
+matches = []
+
+# Iterate through each row in transaction_df
+for index, transaction_row in enumerate(transaction_dict):
+    best_match_score = 0
+    best_match_index = -1
+    best_match_columns = {}
+
+    # Iterate through each row in invoice_df
+    for inv_index, invoice_row in enumerate(invoice_dict):
+        matching_score = 0
+        matching_columns = {}
+
+        # Calculate the similarity score for each column and apply the threshold
+        for col1, value1 in transaction_row.items():
+            for col2, value2 in invoice_row.items():
+                similarity_ratio = SequenceMatcher(None, str(value1), str(value2)).ratio()
+
+                # Apply the threshold for specific columns in df1
+                if col1 in thresholds and similarity_ratio >= thresholds[col1]:
+                    matching_score += similarity_ratio
+                    matching_columns[col1] = (col2, similarity_ratio)
+
+        # Update the best match if a higher score is found
+        if matching_score > best_match_score:
+            best_match_score = matching_score
+            best_match_index = inv_index
+            best_match_columns = matching_columns
+
+    # Append the matching details to the list
+    match = {
+        'df1_index': index,
+        'df2_index': best_match_index,
+        'matching_score': best_match_score,
+        'matching_columns': best_match_columns
+    }
+    matches.append(match)
+
+# Create a DataFrame from the matches list
+result_df = pd.DataFrame(matches)
+
+# Function to format the matching columns and scores
+def format_matching_columns(matching_columns):
+    formatted_columns = []
+    for col1, (col2, score) in matching_columns.items():
+        formatted_columns.append(f"{col1} ({col2}): {score:.
