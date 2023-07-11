@@ -1,0 +1,41 @@
+def calculate_similarity_percentage(str1, str2, n):
+    try:
+        ngrams1 = [str1[i:i+n] for i in range(len(str1)-n+1)]
+        ngrams2 = [str2[i:i+n] for i in range(len(str2)-n+1)]
+
+        mapping = {c: i for i, c in enumerate(set(ngrams1 + ngrams2))}
+        vec1 = [mapping[c] for c in ngrams1]
+        vec2 = [mapping[c] for c in ngrams2]
+        print('Initial Vector1', vec1)
+        print('Initial Vector2', vec2)
+
+        max_len = max(len(vec1), len(vec2))
+        vec1 += [0] * (max_len - len(vec1))
+        vec2 += [0] * (max_len - len(vec2))
+        print(vec1)
+        print(vec2)
+
+        distance = sum(abs(a - b) for a, b in zip(vec1, vec2))
+        print('distance', distance)
+
+        max_distance = max(abs(max(vec1) - min(vec1)), abs(max(vec2) - min(vec2))) * max_len
+        print('max_distance', max_distance)
+        similarity_percentage = (1 - (distance / max_distance)) * 100
+
+        return similarity_percentage
+
+    except ZeroDivisionError:
+        print("Error: Division by zero occurred.")
+        return 0
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return 0
+
+
+# Example usage
+string1 = "3451"
+string2 = "1276"
+n_value = 4
+similarity = calculate_similarity_percentage(string1, string2, n_value)
+print(f"Similarity percentage: {similarity}%")
