@@ -1,15 +1,18 @@
 def calculate_similarity_percentage(str1, str2, n):
     try:
-        # Find the starting index of the first matching substring
-        start_index = 0
-        while start_index < len(str1) and str1[start_index:start_index+n] not in str2:
-            start_index += 1
+        # Find the index of the first matching substring
+        match_index = -1
+        for i in range(len(str1)-n+1):
+            if str1[i:i+n] in str2:
+                match_index = str2.index(str1[i:i+n])
+                break
+
+        if match_index == -1:
+            raise ValueError("No matching substring found.")
 
         # Exclude the substring before the first match
-        str1 = str1[start_index + n - 1:]
-        str2 = str2[start_index:]
-        print("string1",str1)
-        print("string2",str2)
+        str1 = str1[i:]
+        str2 = str2[match_index:]
 
         # Calculate similarity using the modified strings
         ngrams1 = [str1[i:i+n] for i in range(len(str1)-n+1)]
@@ -18,19 +21,24 @@ def calculate_similarity_percentage(str1, str2, n):
         mapping = {c: i for i, c in enumerate(set(ngrams1 + ngrams2))}
         vec1 = [mapping[c] for c in ngrams1]
         vec2 = [mapping[c] for c in ngrams2]
+        
         print('Initial Vector1', vec1)
         print('Initial Vector2', vec2)
+        
 
-        max_len = max(len(vec1), len(vec2))
-        vec1 += [0] * (max_len - len(vec1))
-        vec2 += [0] * (max_len - len(vec2))
-        print(vec1)
-        print(vec2)
+        # Fill the shorter vector with the last value of the longer vector
+        if len(vec1) < len(vec2):
+            vec1 += [vec2[-1]] * (len(vec2) - len(vec1))
+        elif len(vec2) < len(vec1):
+            vec2 += [vec1[-1]] * (len(vec1) - len(vec2))
+
+        print('final Vector1', vec1)
+        print('final Vector2', vec2)
 
         distance = sum(abs(a - b) for a, b in zip(vec1, vec2))
         print('distance', distance)
 
-        max_distance = max(abs(max(vec1) - min(vec1)), abs(max(vec2) - min(vec2))) * max_len
+        max_distance = max(abs(max(vec1) - min(vec1)), abs(max(vec2) - min(vec2))) * max(len(vec1), len(vec2))
         print('max_distance', max_distance)
         similarity_percentage = (1 - (distance / max_distance)) * 100
 
@@ -40,14 +48,14 @@ def calculate_similarity_percentage(str1, str2, n):
         print("Error: Division by zero occurred.")
         return 0
 
-    except Exception as e:
+    except ValueError as e:
         print(f"Error: {str(e)}")
         return 0
 
 
 # Example usage
-string1 = '2009003451234'
-string2 = '200900345123'
+string1 = 'RIMT2009003451234'
+string2 = '2009003451237'
 n_value = 3
 similarity = calculate_similarity_percentage(string1, string2, n_value)
 print(f"Similarity percentage: {similarity}%")
