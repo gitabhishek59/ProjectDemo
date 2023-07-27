@@ -1,0 +1,20 @@
+Here's how you can structure the test cases for both functions:
+
+    Test cases for one_to_one_match:
+        Test when there is a single matching invoice row for each transaction row.
+        Test when there is no matching invoice row for any transaction row.
+        Test when there are multiple matching invoice rows for each transaction row.
+        Test with empty transaction file.
+        Test with empty invoice file.
+        Test with invalid input data (e.g., incorrect column names or data types).
+
+    Test cases for one_to_many_match:
+        Test when there are multiple matching invoice rows for each transaction row.
+        Test when there is no matching invoice row for any transaction row.
+        Test with empty transaction file.
+        Test with empty invoice file.
+        Test with invalid input data (e.g., incorrect column names or data types).
+
+Remember that these are just example test cases, and you should adapt them based on the specific requirements and behavior of your Python Engine.
+
+Here's a sample code with some of the test cases for both functions
