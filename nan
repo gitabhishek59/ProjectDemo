@@ -107,3 +107,101 @@ for sublist in records:
     inv_unmatch_inv_ids.append(record_dict['inv_unmatch_inv_id'])
 
 print(inv_unmatch_inv_ids)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Given records list
+import math
+nan=math.nan
+records = [[
+    (
+        {
+            'inv file id': '63748899',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488997',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            'unmatch _inv_id': '637488997',
+            'cd': nan,
+            '14_taxtreatment _stdname': nan,
+            '15_taxtreatment':nan,
+            'inv processor_id': '12',
+            'invtreatment stdname': nan
+        }
+    )], [(
+        {
+            'inv file id': '63748893',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488995',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            '1unmatch _inv_id': '637488997',
+            'cd': nan,
+            '14_taxtreatment _stdname': nan,
+            '15_taxtreatment': nan,
+            'inv processor_id': '12',
+            'invtreatment stdname': nan
+        }
+    )], [(
+        {
+            'inv file id': '63748891',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488991',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            '1unmatch _inv_id': '637488997',
+            'cd': nan,
+            '14_taxtreatment _stdname': nan,
+            '15_taxtreatment': nan,
+            'inv processor_id': '12',
+            'invtreatment stdname': nan
+        })]
+    
+]
+
+# Fetch all 'inv_unmatch_inv_id' values in a list
+inv_unmatch_inv_ids = []
+
+# Iterate through each sublist in the records
+for sublist in records:
+    # Extract the dictionary from the sublist
+    record_dict = sublist[0]
+    # Get the 'inv_unmatch_inv_id' value from the dictionary and add it to the list
+    inv_unmatch_inv_ids.append(record_dict['inv_unmatch_inv_id'])
+
+print(inv_unmatch_inv_ids)
