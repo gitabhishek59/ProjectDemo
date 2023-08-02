@@ -232,3 +232,18 @@ print(inv_unmatch_inv_ids)
 
 
 inv_unmatch_inv_ids = [rec[0]['inv_unmatch_inv_id'] for sublist in records for rec in sublist]
+
+
+
+import math
+
+# Lists to store the 'inv_unmatch_inv_id' values and corresponding numbers
+inv_unmatch_inv_ids = []
+numbers = []
+
+# Loop through each record and extract the required values
+for record in records:
+    data, number = record[0]
+    inv_unmatch_inv_ids.append(data['inv_unmatch_inv_id'])
+    numbers.append(number)
+
