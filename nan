@@ -64,3 +64,46 @@ for record in records:
 
 # Print the list of 'inv_unmatch_inv_id' values
 print(inv_unmatch_inv_ids)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Fetch all 'inv_unmatch_inv_id' values in a list
+inv_unmatch_inv_ids = []
+
+# Iterate through each sublist in the records
+for sublist in records:
+    # Extract the dictionary from the sublist
+    record_dict = sublist[0]
+    # Get the 'inv_unmatch_inv_id' value from the dictionary and add it to the list
+    inv_unmatch_inv_ids.append(record_dict['inv_unmatch_inv_id'])
+
+print(inv_unmatch_inv_ids)
