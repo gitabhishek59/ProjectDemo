@@ -1,0 +1,1 @@
+inv_unmatch_ids = [item[0]['inv_unmatch_id'] for item in records if not math.isnan(item[0]['inv_unmatch_id'])]
