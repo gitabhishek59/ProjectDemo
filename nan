@@ -1,1 +1,66 @@
 inv_unmatch_ids = [item[0]['inv_unmatch_id'] for item in records if not math.isnan(item[0]['inv_unmatch_id'])]
+
+
+
+
+records = [
+    [
+        ({
+            'inv file id': '63748899',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488997',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            'unmatch _inv_id': '637488997',
+            'cd': 'nan',
+            '14_taxtreatment _stdname': 'nan',
+            '15_taxtreatment': 'nan',
+            'inv processor_id 12': 'invtreatment stdname'
+        },)
+    ],
+    [
+        ({
+            'inv file id': '63748893',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488995',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            '1unmatch _inv_id': '637488997',
+            'cd': 'nan',
+            '14_taxtreatment _stdname': 'nan',
+            '15_taxtreatment': 'nan',
+            'inv processor_id 12': 'invtreatment stdname'
+        },)
+    ],
+    [
+        ({
+            'inv file id': '63748891',
+            'inv ticket num': '0000000000000',
+            'inv_invkey': '7',
+            'inv_unmatch_inv_id': '637488991',
+            'inv member bank id': "10031000",
+            'inv invnumber': '4300291146',
+            'inv sector type cd': 'A',
+            '1unmatch _inv_id': '637488997',
+            'cd': 'nan',
+            '14_taxtreatment _stdname': 'nan',
+            '15_taxtreatment': 'nan',
+            'inv processor_id 12': 'invtreatment stdname'
+        },)
+    ]
+]
+
+# Initialize an empty list to store the values of 'inv_unmatch_inv_id'
+inv_unmatch_inv_ids = []
+
+# Iterate through the records list and extract the value of 'inv_unmatch_inv_id' from each tuple
+for record in records:
+    for tup in record:
+        inv_unmatch_inv_ids.append(tup[0]['inv_unmatch_inv_id'])
+
+# Print the list of 'inv_unmatch_inv_id' values
+print(inv_unmatch_inv_ids)
