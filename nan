@@ -205,3 +205,30 @@ for sublist in records:
     inv_unmatch_inv_ids.append(record_dict['inv_unmatch_inv_id'])
 
 print(inv_unmatch_inv_ids)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+inv_unmatch_inv_ids = [rec[0]['inv_unmatch_inv_id'] for sublist in records for rec in sublist]
