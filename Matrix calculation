@@ -1,0 +1,13 @@
+# Function to determine validity based on conditions
+def determine_validity(row):
+    if row['Inv_column'] == 'inv_ticket_no' and row['similarity_percentage'] > 0.60:
+        return 'valid'
+    elif row['Inv_column'] == 'inv_inv_number' and row['similarity_percentage'] > 0.65:
+        return 'valid'
+    elif row['Inv_column'] == 'inv_auth_no' and row['similarity_percentage'] > 0.70:
+        return 'valid'
+    else:
+        return 'invalid'
+
+# Apply the function to determine validity and create the 'validity' column
+df['validity'] = df.apply(determine_validity, axis=1)
