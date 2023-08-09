@@ -1,0 +1,33 @@
+import pandas as pd
+
+# Sample data for df1
+data_df1 = {
+    'A': [1, 2, 3, 4],
+    'B': ['apple', 'banana', 'cherry', 'date'],
+    'C': [10, 20, 30, 40],
+    'D': ['alpha', 'beta', 'gamma', 'delta']
+}
+
+# Sample data for DB_df
+data_DB_df = {
+    'A': [2, 3, 5, 6],
+    'B': ['banana', 'cherry', 'grape', 'kiwi'],
+    'C': [20, 30, 50, 60],
+    'D': ['beta', 'gamma', 'epsilon', 'zeta']
+}
+
+# Creating dataframes
+df1 = pd.DataFrame(data_df1)
+DB_df = pd.DataFrame(data_DB_df)
+
+# Merge based on 'A' column to get matched_df
+matched_df = pd.merge(df1, DB_df, on='A', how='inner')
+
+# Filter out rows that are present in matched_df to get unmatched_df
+unmatched_df = df1[~df1['A'].isin(matched_df['A'])]
+
+print("Matched DataFrame:")
+print(matched_df)
+
+print("\nUnmatched DataFrame:")
+print(unmatched_df)
