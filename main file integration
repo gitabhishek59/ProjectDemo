@@ -1,0 +1,15 @@
+import subprocess
+
+def execute_file(filename):
+    try:
+        subprocess.run(["python", filename], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing {filename}: {e}")
+
+def main():
+    execute_file("file1.py")
+    execute_file("file2.py")
+    execute_file("file3.py")
+
+if __name__ == "__main__":
+    main()
