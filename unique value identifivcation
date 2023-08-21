@@ -1,0 +1,28 @@
+import pandas as pd
+
+# Sample dataframe
+data = {'match_rule': [
+    "202-adfg455-arf455-vrvr334-fghtr54",
+    "203-bcd123-efg456",
+    "202-adfg455-arf455-vrvr334-fghtr54",
+    "202-adfg454-arf455-vrvr334-fghtr54",
+    "202-adfg45456-arf455-vrvr334-fghtr543",
+    "202-adfg455-arf455-ffg4g54-fghtr532f",
+    "202-adfg45456-arf455-vrvr334-fghtr543",
+    "202-adfg454-arf455-vrvr334-fghtr54",
+    # ... more rows
+]}
+
+df = pd.DataFrame(data)
+
+# Get unique values from the 'match_rule' column
+unique_values = df['match_rule'].unique()
+
+# Create a mapping dictionary between unique values and integer codes
+value_to_code = {value: code for code, value in enumerate(unique_values)}
+
+# Add a new column to the dataframe with the integer codes
+df['integer_code'] = df['match_rule'].map(value_to_code)
+
+# Display the resulting dataframe
+print(df)
