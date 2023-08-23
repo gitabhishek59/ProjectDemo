@@ -1,0 +1,20 @@
+import re
+
+def remove_titles(name):
+    # Define a regular expression pattern to match "MR" or "MRS" followed by space
+    pattern = r'\b(?:MR|MRS)\b\s*'
+    
+    # Use re.sub to replace matches with an empty string
+    clean_name = re.sub(pattern, '', name, flags=re.IGNORECASE)
+    
+    return clean_name
+
+# Example names
+names = ["DUDE/JOHN MR", "MRS SMITH", "MISS JONES", "MR. ANDERSON"]
+
+# Remove titles from each name
+cleaned_names = [remove_titles(name) for name in names]
+
+# Print cleaned names
+for cleaned_name in cleaned_names:
+    print(cleaned_name)
