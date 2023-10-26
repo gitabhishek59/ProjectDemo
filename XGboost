@@ -1,0 +1,38 @@
+# Step 1: Data Preparation
+import pandas as pd
+
+# Load the data
+data = pd.read_excel('your_file.xlsx')
+
+# Preprocessing (cleaning, handling missing values, etc.)
+# Split data into features and target
+X = data[['region_id', 'processor_id', 'trans_account_no', 'inv_account_no', 'trans_source_amount', 'inv_source_amount', 'trans_supplier_name', 'inv_ticket_number']]
+y = data['label_column']
+
+# Step 2: Feature Selection (if needed)
+# This step can include additional feature engineering or selection based on domain knowledge.
+
+# Step 3: Model Building
+from xgboost import XGBClassifier
+
+# Initialize the model with L1 (Lasso) regularization
+model = XGBClassifier(reg_alpha=1)
+
+# Step 4: Training
+model.fit(X_train, y_train)
+
+# Step 5: Evaluation
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+# Step 6: Prediction
+new_data = pd.read_excel('new_data.xlsx')
+X_new = new_data[['region_id', 'processor_id', 'trans_account_no', 'inv_account_no', 'trans_source_amount', 'inv_source_amount', 'trans_supplier_name', 'inv_ticket_number']]
+predictions = model.predict(X_new)
+
+# 'predictions' now contains the predicted labels (1 or 0) for the new dataset.
